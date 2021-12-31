@@ -57,7 +57,7 @@ class Scene:
         self.meshes = mehses
         self.fov = fov
         self.distance = distance
-        self.euler_angles = [45, 45, 0]
+        self.euler_angles = [0, 0, 0]
 
     def transform_vertices(self, vertices, width, height):
         transformed_vertices = vertices
@@ -83,24 +83,30 @@ class Scene:
             pygame.draw.polygon(surface, (0, 0, 0), poly[0], 1)
 
 
+def matrix_to_origins(matrix: list[list[list[int]]]) -> list[tuple[int, int, int]]:
+    output = []
+    for z, depth in zip(range(-(len(matrix) // 2), len(matrix) // 2 + 1), matrix):
+        for y, column in zip(range(-(len(depth) // 2), len(depth) // 2 + 1), depth):
+            for x, cell in zip(range(-(len(column) // 2), len(column) // 2 + 1), column):
+                if cell > 0:
+                    output.append((x, y, z))
+    return output
+
+
 # base cube properties
 vertices = [(-1, -1, 1), (1, -1, 1), (1, 1, 1), (-1, 1, 1), (-1, -1, -1), (1, -1, -1), (1, 1, -1), (-1, 1, -1)]
 faces = [(0, 1, 2, 3), (1, 5, 6, 2), (5, 4, 7, 6), (4, 0, 3, 7), (3, 2, 6, 7), (1, 0, 4, 5)]
 
-# cube matrix
-cube_origins = [
-    (-1, -1, 0), (0, -1, 0), (1, -1, 0),
-    (-1, 0, 0), (0, 0, 0), (1, 0, 0),
-    (-1, 1, 0), (0, 1, 0), (1, 1, 0),
-
-    (-1, -1, 1), (0, -1, 1), (1, -1, 1),
-    (-1, 0, 1), (0, 0, 1), (1, 0, 1),
-    (-1, 1, 1), (0, 1, 1), (1, 1, 1),
-
-    (-1, -1, -1), (0, -1, -1), (1, -1, -1),
-    (-1, 0, -1), (0, 0, -1), (1, 0, -1),
-    (-1, 1, -1), (0, 1, -1), (1, 1, -1)
-]
+# cube matrix, input = 3D matrix
+# z: [y: [x: value, x: value, x: value], y: [x: value, x: value, x: value], y: [x: value, x: value, x: value]]
+# z: [y: [x: value, x: value, x: value], y: [x: value, x: value, x: value], y: [x: value, x: value, x: value]]
+# z: [y: [x: value, x: value, x: value], y: [x: value, x: value, x: value], y: [x: value, x: value, x: value]]
+# value = cost of cube (2, 4, 8, 16, 32, etc)
+cube_origins = matrix_to_origins([
+    [[1, 1, 1], [1, 1, 1], [1, 1, 1]],
+    [[1, 1, 1], [1, 1, 1], [1, 1, 1]],
+    [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
+])
 
 meshes = []
 for origin in cube_origins:
